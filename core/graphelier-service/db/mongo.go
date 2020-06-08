@@ -23,6 +23,8 @@ type Datastore interface {
 	RefreshCache() error
 	GetSingleOrderMessages(instrument string, SODTimestamp int64, EODTimestamp int64, orderID int64) ([]*models.Message, error)
 	GetTopOfBookByInterval(instrument string, startTimestamp uint64, endTimestamp uint64, maxCount int64) (results []*models.Point, err error)
+    GetTopOfBookByTimestamp(instrument string, startTimestamp uint64) (result *models.Point, err error)
+    GetInstrumentGains(instruments []string, currentTimestamp uint64, otherTimestamp uint64) (result []*models.InstrumentGain, err error)
 }
 
 // Connector : A struct that represents the database
@@ -424,4 +426,106 @@ func (c *Connector) GetTopOfBookByInterval(instrument string, startTimestamp uin
 	}
 
 	return results, nil
+}
+
+// GetTopOfBookByTimestamp : Reads the best bid and best ask from order book snapshots at specified time
+func (c *Connector) GetTopOfBookByTimestamp(instrument string, startTimestamp uint64) (result *models.Point, err error) {
+	defer utils.TraceTimer("mongo/GetTopOfBookByTimestamp")()
+
+	meta, ok := c.cache.meta[instrument]
+	if !ok {
+		return nil, InstrumentNotFoundError{Instrument: instrument}
+	}
+	interval := meta.Interval
+
+	exactStart := timestampToIntervalMultiple(startTimestamp, interval)
+
+	collection := c.Database("graphelier-db").Collection("orderbooks")
+	filter := bson.D{
+		{Key: "instrument", Value: instrument},
+		{Key: "interval_multiple", Value: bson.D{
+			{Key: "$gte", Value: exactStart},
+		}},
+	}
+
+	result, err = getTopOfBookByTimestampHelper(&filter, collection, interval, startTimestamp)
+	if err != nil {
+        return nil, err
+    }
+
+    return result, nil
+}
+
+// getTopOfBookByTimestampHelper : Helper for getting the best bid and best ask from order book snapshots at specified times
+func getTopOfBookByTimestampHelper(filter *bson.D, collection *mongo.Collection, interval uint64, startTimestamp uint64) (result *models.Point, err error) {
+	var orderbook *models.Orderbook
+
+    findOptions := options.FindOne()
+    findOptions.Projection = bson.D{
+        {Key: "instrument", Value: 1},
+        {Key: "bids", Value: bson.D{{Key: "$slice", Value: 1}}},
+        {Key: "asks", Value: bson.D{{Key: "$slice", Value: 1}}},
+        {Key: "bids.price", Value: 1},
+        {Key: "asks.price", Value: 1},
+    }
+
+    err = collection.FindOne(context.TODO(), filter, findOptions).Decode(&orderbook)
+    if err != nil {
+        return nil, err
+    }
+
+    point := models.CreatePoint(orderbook, startTimestamp)
+    result = &point
+
+    return result, nil
+}
+
+// GetInstrumentGains : Gets the instrument gain based on current and other time stamp
+func (c *Connector) GetInstrumentGains(instruments []string, currentTimestamp uint64, otherTimestamp uint64) (result []*models.InstrumentGain, err error) {
+	defer utils.TraceTimer("mongo/GetInstrumentGains")()
+
+    var current_point *models.Point
+    var other_point *models.Point
+
+    for index := range instruments {
+        instrument := instruments[index]
+        meta, ok := c.cache.meta[instrument]
+        if !ok {
+            return nil, InstrumentNotFoundError{Instrument: instrument}
+        }
+        interval := meta.Interval
+
+        exactCurrentStart := timestampToIntervalMultiple(currentTimestamp, interval)
+        exactOtherStart := timestampToIntervalMultiple(otherTimestamp, interval)
+
+        log.Debugf("Instrument: %s", instrument);
+        log.Debugf("exact current start: %d", exactCurrentStart);
+        log.Debugf("exact other start: %d", exactOtherStart);
+
+        collection := c.Database("graphelier-db").Collection("orderbooks")
+        filter := bson.D{
+            {Key: "instrument", Value: instrument},
+            {Key: "interval_multiple", Value: bson.D{
+                {Key: "$gte", Value: exactCurrentStart},
+            }},
+        }
+
+        current_point, err = getTopOfBookByTimestampHelper(&filter, collection, interval, currentTimestamp)
+        if err != nil {
+            return nil, err
+        }
+        filter[1].Value = bson.D{
+            {Key: "$gte", Value: exactOtherStart},
+        }
+        other_point, err = getTopOfBookByTimestampHelper(&filter, collection, interval, otherTimestamp)
+        if err != nil {
+            return nil, err
+        }
+        log.Debugf("found current point - BestBid:  %f, BestAsk: %f, Timestamp: %d\n", current_point.BestBid, current_point.BestAsk, current_point.Timestamp);
+        log.Debugf("found other point - BestBid:  %f, BestAsk: %f, Timestamp: %d\n", other_point.BestBid, other_point.BestAsk, other_point.Timestamp);
+        instrumentGain := models.CreateInstrumentGainByPoints(instrument, current_point, other_point)
+        result = append(result, &instrumentGain)
+	}
+
+	return result, nil
 }
