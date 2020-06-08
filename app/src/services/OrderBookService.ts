@@ -28,8 +28,16 @@ export default class OrderBookService {
         return graphelierClient.get(`/topbook/${instrument}/${startTime}/${endTime}/${nDataPoints}`);
     };
 
+    static getTopOfBook = (instrument: string, startTime: string) => {
+        return graphelierClient.get(`/topbookone/${instrument}/${startTime}`);
+    };
+
     static getOrderInformation = (instrument: string, orderId: number, timestamp: string) => {
         return graphelierClient.get(`/order/${instrument}/${orderId}/${timestamp}`);
+    };
+
+    static getInstrumentGains = (instruments: string, currentTime: string, otherTime: string) => {
+        return graphelierClient.get(`/gain/${instruments}/${currentTime}/${otherTime}`);
     };
 
     static getPlaybackWebSocket = (
