@@ -42,3 +42,28 @@ func FetchTopBook(env *Env, w http.ResponseWriter, r *http.Request) (err error) 
 
 	return nil
 }
+
+// FetchTopBook : Sends a timestamp with the best bid and ask
+func FetchTopBookOne(env *Env, w http.ResponseWriter, r *http.Request) (err error) {
+    params := mux.Vars(r)
+
+    instrument := params["instrument"]
+    sTime := params["start_timestamp"]
+
+    startTime, err := strconv.ParseUint(sTime, 10, 64)
+    if err != nil {
+        return StatusError{400, err}
+    }
+
+    point, err := env.Datastore.GetTopOfBookByTimestamp(instrument, startTime)
+    if err != nil {
+        return StatusError{400, err}
+    }
+
+    err = json.NewEncoder(w).Encode(point)
+    if err != nil {
+        return StatusError{500, err}
+    }
+
+    return nil
+}
