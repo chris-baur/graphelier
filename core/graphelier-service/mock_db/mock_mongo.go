@@ -166,3 +166,33 @@ func (mr *MockDatastoreMockRecorder) GetTopOfBookByInterval(instrument, startTim
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTopOfBookByInterval", reflect.TypeOf((*MockDatastore)(nil).GetTopOfBookByInterval), instrument, startTimestamp, endTimestamp, maxCount)
 }
+
+// GetTopOfBookByTimestamp mocks base method
+func (m *MockDatastore) GetTopOfBookByTimestamp(instrument string, startTimestamp uint64) (*models.Point, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTopOfBookByTimestamp", instrument, startTimestamp)
+	ret0, _ := ret[0].(*models.Point)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTopOfBookByTimestamp indicates an expected call of GetTopOfBookByTimestamp
+func (mr *MockDatastoreMockRecorder) GetTopOfBookByTimestamp(instrument, startTimestamp interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTopOfBookByTimestamp", reflect.TypeOf((*MockDatastore)(nil).GetTopOfBookByTimestamp), instrument, startTimestamp)
+}
+
+// GetInstrumentGains mocks base method
+func (m *MockDatastore) GetInstrumentGains(instruments []string, currentTimestamp, otherTimestamp uint64) ([]*models.InstrumentGain, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInstrumentGains", instruments, currentTimestamp, otherTimestamp)
+	ret0, _ := ret[0].([]*models.InstrumentGain)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetInstrumentGains indicates an expected call of GetInstrumentGain
+func (mr *MockDatastoreMockRecorder) GetInstrumentGains(instruments, currentTimestamp, otherTimestamp interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInstrumentGains", reflect.TypeOf((*MockDatastore)(nil).GetInstrumentGains), instruments, currentTimestamp, otherTimestamp)
+}

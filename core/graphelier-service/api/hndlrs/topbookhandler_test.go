@@ -40,3 +40,29 @@ func TestFetchTopBook(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, points, result)
 }
+
+func TestFetchTopBookByTimestamp(t *testing.T) {
+
+    testPoint := points[0]
+    mockedDB := MockDb(t)
+    defer Ctrl.Finish()
+
+    mockedDB.EXPECT().
+        GetTopOfBookByTimestamp("test", uint64(1)).
+        Return(testPoint, nil)
+
+    var result *models.Point
+    err := MakeRequest(
+        hndlrs.FetchTopBookOne, // Function to test`
+        mockedDB,
+        "GET",
+        "/topbookone/test/1",
+        map[string]string{
+            "instrument":       "test",
+            "start_timestamp":  "1",
+        },
+        &result,
+    )
+    assert.Nil(t, err)
+    assert.Equal(t, testPoint, result)
+}
