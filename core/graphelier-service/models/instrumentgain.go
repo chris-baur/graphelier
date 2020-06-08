@@ -2,7 +2,6 @@ package models
 
 import (
     "math"
-    log "github.com/sirupsen/logrus"
 )
 
 // InstrumentGain : A struct to hold instrument gain data to send as json
@@ -22,13 +21,7 @@ func CreateInstrumentGain(current_orderbook *Orderbook, other_orderbook *Orderbo
 	ig.Unit = math.Floor(best_ask_diff * 1000) / 1000 // 3 decimal precision
 
 	//check for 0 divison
-	if other_ask == 0 {
-        if current_ask == 0 {
-            other_ask = 1
-        } else {
-            other_ask = current_ask
-        }
-	}
+	other_ask = CheckZeroDivision(other_ask, current_ask)
 	ig.Percentage = math.Floor(((best_ask_diff / other_ask) * 100) * 1000)/1000 // 3 decimal precision
 
 	return ig
@@ -44,22 +37,23 @@ func CreateInstrumentGainByPoints(instrument string, current_point *Point, other
 	ig.Unit = math.Floor(best_ask_diff * 1000)/1000 // 3 decimal precision
 
     //check for 0 divison
-    if other_ask == 0 {
-        if current_ask == 0 {
-            other_ask = 1
-        } else {
-            other_ask = current_ask
-        }
-    }
+    other_ask = CheckZeroDivision(other_ask, current_ask)
 	ig.Percentage = math.Floor((best_ask_diff / other_ask * 100) * 1000)/1000 // 3 decimal precision
 
-    log.Debugf("\nBest Ask Diff: %f", best_ask_diff)
-    log.Debugf("\nCurrent Ask: %f", current_ask)
-    log.Debugf("\nOther Ask: %f", other_ask)
-	log.Debugf("\nInstrument: %s", ig.Instrument)
-	log.Debugf("\nunit: %f", ig.Unit)
-	log.Debugf("\nPercentage: %f", ig.Percentage)
-
-
 	return ig
+}
+
+// checkZeroDivision: checks for zero division when trying to find the percentage of potential instrument gain
+func CheckZeroDivision(den, otherVal float64) (newDen float64){
+    if den == 0 {
+        if otherVal == 0 {
+            newDen = 1
+        } else {
+            newDen = otherVal
+        }
+    } else {
+        newDen = den
+    }
+
+    return newDen
 }

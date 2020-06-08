@@ -43,7 +43,7 @@ func FetchTopBook(env *Env, w http.ResponseWriter, r *http.Request) (err error) 
 	return nil
 }
 
-// FetchTopBook : Sends a timestamp with the best bid and ask
+// FetchTopBookOne : Sends a timestamp with the best bid and best ask
 func FetchTopBookOne(env *Env, w http.ResponseWriter, r *http.Request) (err error) {
     params := mux.Vars(r)
 

@@ -480,7 +480,7 @@ func getTopOfBookByTimestampHelper(filter *bson.D, collection *mongo.Collection,
     return result, nil
 }
 
-// GetInstrumentGains : Gets the instrument gain based on current and other time stamp
+// GetInstrumentGains : Gets all instrument gains based on current timestamp and other timestamp
 func (c *Connector) GetInstrumentGains(instruments []string, currentTimestamp uint64, otherTimestamp uint64) (result []*models.InstrumentGain, err error) {
 	defer utils.TraceTimer("mongo/GetInstrumentGains")()
 
@@ -497,10 +497,6 @@ func (c *Connector) GetInstrumentGains(instruments []string, currentTimestamp ui
 
         exactCurrentStart := timestampToIntervalMultiple(currentTimestamp, interval)
         exactOtherStart := timestampToIntervalMultiple(otherTimestamp, interval)
-
-        log.Debugf("Instrument: %s", instrument);
-        log.Debugf("exact current start: %d", exactCurrentStart);
-        log.Debugf("exact other start: %d", exactOtherStart);
 
         collection := c.Database("graphelier-db").Collection("orderbooks")
         filter := bson.D{
@@ -521,8 +517,6 @@ func (c *Connector) GetInstrumentGains(instruments []string, currentTimestamp ui
         if err != nil {
             return nil, err
         }
-        log.Debugf("found current point - BestBid:  %f, BestAsk: %f, Timestamp: %d\n", current_point.BestBid, current_point.BestAsk, current_point.Timestamp);
-        log.Debugf("found other point - BestBid:  %f, BestAsk: %f, Timestamp: %d\n", other_point.BestBid, other_point.BestAsk, other_point.Timestamp);
         instrumentGain := models.CreateInstrumentGainByPoints(instrument, current_point, other_point)
         result = append(result, &instrumentGain)
 	}
