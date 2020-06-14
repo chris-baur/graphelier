@@ -82,4 +82,16 @@ var routes = Routes{
 		"/playback/{instrument}/{sodOffset}/",
 		hndlrs.CustomHandler{H: hndlrs.StreamPlayback},
 	},
+	Route{
+	    "Gain",
+	    "GET",
+	    "/gain/{instruments}/{current_timestamp}/{other_timestamp}",
+	    hndlrs.CustomHandler{H: hndlrs.FetchInstrumentGains},
+    },
+    Route{
+        "TopBookOne",
+        "GET",
+        "/topbookone/{instrument}/{start_timestamp}",
+        hndlrs.CustomHandler{H: hndlrs.FetchTopBookOne},
+    },
 }
