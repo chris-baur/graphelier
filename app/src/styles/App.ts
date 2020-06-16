@@ -24,6 +24,7 @@ export const LightThemeColors = {
     palette: {
         primary: {
             main: '#41aeff',
+            mainRGBValues: '65,174,255',
         },
         secondary: {
             main: Colors.lightBlue,
