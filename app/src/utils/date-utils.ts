@@ -55,6 +55,25 @@ export const nanosecondsToString = (nanosecondTimestamp: number): string => {
 };
 
 /**
+ * @desc Converts a time string of format hh:mm:ssz AM|PM into nanoseconds
+ *
+ * @param nanosecondString string
+ * @returns {bigInt}
+ */
+export const stringToNanoseconds = (nanosecondString: string) : bigInt.BigInteger => {
+    const period: string = nanosecondString.substr(-2, 2);
+
+    const nanoseconds = bigInt(nanosecondString.substr(9, 9));
+    const seconds = bigInt(nanosecondString.substr(6, 2)).times(NANOSECONDS_IN_ONE_SECOND);
+    const minutes = bigInt(nanosecondString.substr(3, 2)).times(NANOSECONDS_IN_ONE_MINUTE);
+    let hours = bigInt(nanosecondString.substr(0, 2)).mod(12).times(NANOSECONDS_IN_ONE_HOUR);
+    if (period === 'PM') hours = hours.plus(NANOSECONDS_IN_ONE_HOUR * 12);
+
+
+    return bigInt(hours).plus(minutes).plus(seconds).plus(nanoseconds);
+};
+
+/**
  * @desc Given a timestamp in nanoseconds, returns the timestamp converted to UTC
  * @param nanosecondTimestamp {bigInt}
  * @returns {bigInt}
