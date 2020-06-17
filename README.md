@@ -1,6 +1,6 @@
 # <p align="center"><img width="500" src="./CourseAdmin/logo.png" alt="Graphelier" /></p>
 
-## [![CircleCI](https://circleci.com/gh/Lercerss/graphelier.svg?style=svg&circle-token=50dd302111fbcd79ed4503e7970d95ef963b155e)](https://circleci.com/gh/Lercerss/graphelier)
+## [![CircleCI](https://circleci.com/gh/chris-baur/graphelier.svg?style=svg&circle-token=91a696402dbb05dff3fbdc09193709d8444ce8d4)](https://circleci.com/gh/chris-baur/graphelier)
 
 Displays detailed exchange order book contents
 
