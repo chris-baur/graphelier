@@ -104,3 +104,9 @@ export interface SplitNanosecondTimestamp {
     timeNanoseconds: number,
     dateNanoseconds: bigInt.BigInteger,
 }
+
+export interface InstrumentGain {
+    instrument: string,
+    unit: number,
+    percentage: number,
+}

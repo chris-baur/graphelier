@@ -50,6 +50,7 @@ import PlaybackControl from './PlaybackControl';
 import { RootState } from '../store';
 import OrderInformation from './OrderInformation';
 import { saveOrderbookTimestampInfo } from '../actions/actions';
+import InstrumentGainsContainer from './InstrumentGainsContainer';
 
 const styles = theme => createStyles(Styles(theme));
 
@@ -654,6 +655,14 @@ class OrderBookSnapshot extends Component<Props, State> {
                             </div>
                         </div>
                     </FormControl>
+                    <InstrumentGainsContainer
+                        instruments={instruments}
+                        loadingInstruments={loadingInstruments}
+                        datePickerValue={datePickerValue}
+                        lastSodOffset={lastSodOffset}
+                        playback={playback}
+                        selectedInstrument={selectedInstrument}
+                    />
                     {selectedInstrument.length !== 0
                         && (
                             <div>

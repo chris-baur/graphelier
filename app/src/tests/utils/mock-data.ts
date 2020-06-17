@@ -1,9 +1,11 @@
 import bigInt from 'big-integer';
 import moment from 'moment';
 import { TransactionType } from '../../models/OrderBook';
+import { NANOSECONDS_IN_NINE_AND_A_HALF_HOURS, NANOSECONDS_IN_SIXTEEN_HOURS } from '../../constants/Constants';
 
 export const DATE_STRING = '21/06/2012';
 export const DATE_MOMENT = moment('2012-06-21');
+export const NANOTIME_STRING = '10:30:00.000000000';
 export const INSTRUMENT = 'SPY';
 export const DATE_VALUE_BIG_INT = bigInt(1340251200000000000); // 2012-06-21 (local 12 AM) nanoseconds (bigInt)
 export const TIME_STRING = '03:00:00.000000000 PM';
@@ -253,4 +255,28 @@ export const PLAYBACKCONTROL_INFORMATION = {
             quantity: 1300,
         }],
     },
+};
+
+export const INSTRUMENTGGAINSCONTAINER_INFORMATION = {
+    instruments: ['SPY', 'AAPL', 'MSFT'],
+    loadingInstruments: false,
+    datePickerValue: moment('2020-01-01'),
+    selectedInstrument: 'SPY',
+    lastSodOffset: bigInt('1577851200000000000'),
+    playback: false,
+    currentOrderbookTimestamp: '1577885400000000000',
+    data: {
+        0: {
+            instrument: 'SPY',
+            unit: '10.00',
+            percentage: '1.00',
+        },
+    },
+};
+
+export const NANOSECONDTIMEPICKER_INFORMATION = {
+    lowerLimit: NANOSECONDS_IN_NINE_AND_A_HALF_HOURS,
+    upperLimit: NANOSECONDS_IN_SIXTEEN_HOURS,
+    defaultStringValue: NANOTIME_STRING,
+    disable: false,
 };

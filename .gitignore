@@ -7,5 +7,8 @@ docker-compose_windows.yml
 #Webstorm folder
 **/.idea
 
+#Imported Repos in Src
+src/*
+
 node_modules
 .vscode
