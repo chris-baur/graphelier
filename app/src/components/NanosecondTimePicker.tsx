@@ -17,7 +17,6 @@ interface NanosecondTImePickerProps extends WithStyles<typeof styles>, WithSnack
     onChange: Function,
     lowerLimit: bigInt.BigInteger,
     upperLimit: bigInt.BigInteger,
-    defaultNanoValue: bigInt.BigInteger,
     defaultStringValue: string,
     disable: boolean,
 
@@ -26,7 +25,6 @@ interface NanosecondTImePickerProps extends WithStyles<typeof styles>, WithSnack
 interface NanosecondTImePickerState {
     valid: boolean,
     period: string,
-    nanoValue: bigInt.BigInteger,
     stringValue: string,
 }
 // matches AM PM times
@@ -34,18 +32,10 @@ const regex = new RegExp('^(?:0[0-9]:[0-5][0-9]:[0-5][0-9]\\.\\d{9})$|^(?:1[0-2]
 const periodOptions: Array<string> = ['AM', 'PM'];
 
 class NanosecondTimePicker extends Component<NanosecondTImePickerProps, NanosecondTImePickerState> {
-    static defaultProps = {
-        onChange: () => {},
-        lowerLimit: bigInt(0),
-        upperLimit: bigInt(0),
-        defaultNanoValue: bigInt(0),
-        defaultStringValue: '00:00:00.000000000',
-    };
-
     constructor(props) {
         super(props);
 
-        const { defaultStringValue, defaultNanoValue } = this.props;
+        const { defaultStringValue } = this.props;
         let defaultString = defaultStringValue;
         if (defaultStringValue.includes('AM') || defaultStringValue.includes('PM')) {
             defaultString = defaultStringValue.substring(0, defaultStringValue.length - 2).trim();
@@ -54,7 +44,6 @@ class NanosecondTimePicker extends Component<NanosecondTImePickerProps, Nanoseco
         this.state = {
             valid: true,
             period: periodOptions[0],
-            nanoValue: defaultNanoValue,
             stringValue: defaultString,
         };
     }
@@ -71,15 +60,12 @@ class NanosecondTimePicker extends Component<NanosecondTImePickerProps, Nanoseco
         const { onChange, upperLimit, lowerLimit } = this.props;
         let valid = false;
         const result = regex.test(value);
-        // const res2 = value.match(regex);
         if (result) {
             const nanoValue = stringToNanoseconds(value.concat(` ${period}`));
             if (!nanoValue.greater(upperLimit)) {
                 if (!nanoValue.lesser(lowerLimit)) {
                     valid = true;
-                    this.setState({
-                        nanoValue,
-                    }, () => onChange(nanoValue));
+                    onChange(nanoValue);
                 }
             }
         }
@@ -125,15 +111,14 @@ class NanosecondTimePicker extends Component<NanosecondTImePickerProps, Nanoseco
 
     render() {
         const {
-            valid, period, nanoValue, stringValue,
+            valid, period, stringValue,
         } = this.state;
         const { classes, disable } = this.props;
 
-        console.log(`nano value: ${nanoValue}`);
-        console.log(`string value: ${stringValue}`);
         return (
             <div className={classes.flex}>
                 <TextField
+                    id={'nanosecond-timepicker'}
                     defaultValue={stringValue}
                     onChange={this.handleTimeChange}
                     error={!valid}
@@ -150,11 +135,17 @@ Period
                     id={'select-AM-PM'}
                     value={period}
                     onChange={this.handlePeriodChange}
+                    disabled={disable}
                 >
                     {
                         periodOptions.map((value, index) => {
                             return (
-                                <MenuItem value={value}>{value}</MenuItem>
+                                <MenuItem
+                                    key={value}
+                                    value={value}
+                                >
+                                    {value}
+                                </MenuItem>
                             );
                         })
                     }
@@ -164,5 +155,7 @@ Period
         );
     }
 }
+
+export const NonConnectedNanosecondTimePicker = withStyles(styles)(NanosecondTimePicker);
 
 export default withStyles(styles)(withSnackbar(NanosecondTimePicker));
